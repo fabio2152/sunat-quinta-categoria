@@ -1,0 +1,13 @@
+{
+  "name": "sunat-quinta-categoria",
+  "version": "1.0.0",
+  "description": "Calculadora de retención de renta de quinta categoría (SUNAT) — Ejercicio 2026. Lab 01: ciclo de vida en cascada.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test \"test/**/*.test.js\""
+  },
+  "keywords": ["sunat", "quinta-categoria", "impuesto-a-la-renta", "peru", "cascada"],
+  "author": "Fabio Malpartida <fabio.malpartida@utec.edu.pe>",
+  "license": "MIT"
+}

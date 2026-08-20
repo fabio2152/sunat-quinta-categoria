@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es-PE">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retención de Quinta Categoría — SUNAT 2026</title>
+  <meta name="description" content="Calculadora de la retención mensual del impuesto a la renta de quinta categoría (SUNAT, Perú), ejercicio 2026. Lab 01 — Diseño de Software.">
+  <link rel="stylesheet" href="./assets/css/styles.css">
+</head>
+<body>
+  <header class="encabezado">
+    <div class="contenedor encabezado__interior">
+      <div>
+        <h1>Retención de Renta de Quinta Categoría</h1>
+        <p class="encabezado__subtitulo">
+          Ejercicio gravable <strong id="ejercicio">2026</strong> ·
+          UIT vigente <strong id="uit-vigente">S/ 5,500.00</strong> ·
+          Deducción fija 7 UIT = <strong id="deduccion-fija">S/ 38,500.00</strong>
+        </p>
+      </div>
+      <a class="encabezado__fuente" id="fuente-sunat" href="https://orientacion.sunat.gob.pe/3071-02-calculo-del-impuesto" target="_blank" rel="noopener noreferrer">
+        Fuente: procedimiento SUNAT ↗
+      </a>
+    </div>
+  </header>
+
+  <main class="contenedor disposicion">
+
+    <!-- ================= PANEL DE ENTRADA ================= -->
+    <section class="panel" aria-labelledby="titulo-datos">
+      <h2 id="titulo-datos">Datos del trabajador</h2>
+
+      <form id="formulario" novalidate>
+        <div class="campo">
+          <label for="remuneracion">Remuneración mensual bruta (S/)</label>
+          <input type="number" id="remuneracion" name="remuneracion" min="0" step="0.01"
+                 value="5000" inputmode="decimal" required
+                 aria-describedby="ayuda-remuneracion">
+          <p class="ayuda" id="ayuda-remuneracion">Sueldo bruto, sin descuentos de AFP/ONP.</p>
+        </div>
+
+        <div class="campo">
+          <label for="mes-ingreso">Mes de ingreso al trabajo</label>
+          <select id="mes-ingreso" name="mesIngreso" aria-describedby="ayuda-mes">
+            <!-- opciones generadas en ui.js -->
+          </select>
+          <p class="ayuda" id="ayuda-mes">Se proyecta desde este mes hasta diciembre.</p>
+        </div>
+
+        <details class="colapsable">
+          <summary>Empleador anterior (mismo ejercicio)</summary>
+          <div class="campo">
+            <label for="remuneraciones-previas">Remuneraciones percibidas (S/)</label>
+            <input type="number" id="remuneraciones-previas" min="0" step="0.01" value="0" inputmode="decimal">
+          </div>
+          <div class="campo">
+            <label for="retenciones-previas">Retenciones ya efectuadas (S/)</label>
+            <input type="number" id="retenciones-previas" min="0" step="0.01" value="0" inputmode="decimal">
+          </div>
+          <p class="ayuda">Caso de acreditación con certificado de rentas y retenciones.</p>
+        </details>
+
+        <fieldset class="adicionales">
+          <legend>Ingresos adicionales</legend>
+          <p class="ayuda">
+            Gratificaciones extraordinarias, bonificaciones, utilidades, reintegros, horas extras…
+            Se gravan en el mes en que se ponen a disposición (PASO 5).
+          </p>
+          <div id="lista-adicionales" class="lista-adicionales"></div>
+          <button type="button" id="btn-agregar-adicional" class="btn btn--secundario">
+            + Agregar ingreso adicional
+          </button>
+        </fieldset>
+
+        <div class="campo">
+          <label for="selector-casos">Cargar caso de prueba</label>
+          <select id="selector-casos">
+            <!-- opciones generadas en ui.js -->
+          </select>
+        </div>
+
+        <p class="error" id="mensaje-error" role="alert" hidden></p>
+
+        <div class="acciones">
+          <button type="submit" class="btn btn--primario">Calcular</button>
+          <button type="reset" id="btn-limpiar" class="btn btn--secundario">Limpiar</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ================= PANEL DE RESULTADOS ================= -->
+    <section class="panel" aria-labelledby="titulo-resultados">
+      <h2 id="titulo-resultados">Resultados</h2>
+
+      <div class="tarjetas" id="tarjetas">
+        <article class="tarjeta">
+          <h3>Remuneración Bruta Anual</h3>
+          <p class="tarjeta__valor" id="res-rba">—</p>
+          <p class="tarjeta__pie">PASO 1 (proyección de diciembre)</p>
+        </article>
+        <article class="tarjeta">
+          <h3>Renta Neta Anual</h3>
+          <p class="tarjeta__valor" id="res-rna">—</p>
+          <p class="tarjeta__pie">PASO 2 (RBA − 7 UIT)</p>
+        </article>
+        <article class="tarjeta">
+          <h3>Impuesto Anual Proyectado</h3>
+          <p class="tarjeta__valor" id="res-iap">—</p>
+          <p class="tarjeta__pie">PASO 3 (escala progresiva)</p>
+        </article>
+        <article class="tarjeta">
+          <h3>Total retenido</h3>
+          <p class="tarjeta__valor" id="res-retenido">—</p>
+          <p class="tarjeta__pie" id="res-saldo">Suma de las retenciones del año</p>
+        </article>
+        <article class="tarjeta">
+          <h3>Neto anual a recibir</h3>
+          <p class="tarjeta__valor" id="res-neto">—</p>
+          <p class="tarjeta__pie">Ingreso bruto anual − retenciones</p>
+        </article>
+      </div>
+
+      <div class="tabla-envoltorio">
+        <table class="tabla" id="tabla-mensual">
+          <caption>
+            Detalle mensual. Haz clic (o pulsa Enter) en una fila laborada para ver los 5 PASOS.
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Mes</th>
+              <th scope="col">Ingreso ordinario</th>
+              <th scope="col">Gratificación</th>
+              <th scope="col">Adicional</th>
+              <th scope="col">Ingreso bruto</th>
+              <th scope="col">Retención</th>
+              <th scope="col">Neto a recibir</th>
+            </tr>
+          </thead>
+          <tbody id="cuerpo-tabla"></tbody>
+          <tfoot id="pie-tabla"></tfoot>
+        </table>
+      </div>
+
+      <div class="detalle" id="detalle" hidden aria-live="polite">
+        <h3 id="detalle-titulo">Detalle del cálculo</h3>
+        <ol class="pasos" id="detalle-pasos"></ol>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pie">
+    <div class="contenedor">
+      <p>
+        <strong>Lab 01 — Ciclo de vida en cascada</strong> · Curso Diseño de Software ·
+        Fabio Malpartida (<a href="mailto:fabio.malpartida@utec.edu.pe">fabio.malpartida@utec.edu.pe</a>)
+      </p>
+      <p class="pie__aviso">
+        Herramienta didáctica. No incluye la deducción adicional de 3 UIT, rentas de cuarta
+        categoría ni aportes previsionales (AFP/ONP/EsSalud). UIT 2026 según D.S. N° 301-2025-EF.
+      </p>
+    </div>
+  </footer>
+
+  <script type="module" src="./src/ui.js"></script>
+</body>
+</html>
