@@ -171,7 +171,7 @@ RBA = 5,000 × 4 (set–dic) + gratificación de Navidad proporcional (5,000 × 
 $ npm test
 
 > sunat-quinta-categoria@1.0.0 test
-> node --test "test/**/*.test.js"
+> node --test test/calculadora.test.js
 
 ▶ Casos de prueba del docente
   ✔ Caso 1 — remuneración baja, no supera 7 UIT: sin retención

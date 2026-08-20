@@ -5,7 +5,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "test": "node --test \"test/**/*.test.js\""
+    "test": "node --test test/calculadora.test.js"
   },
   "keywords": ["sunat", "quinta-categoria", "impuesto-a-la-renta", "peru", "cascada"],
   "author": "Fabio Malpartida <fabio.malpartida@utec.edu.pe>",

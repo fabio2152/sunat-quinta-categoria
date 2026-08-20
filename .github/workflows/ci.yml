@@ -20,4 +20,4 @@ jobs:
           node-version: '20'
 
       - name: Ejecutar pruebas (runner nativo de Node)
-        run: node --test "test/**/*.test.js"
+        run: node --test test/calculadora.test.js

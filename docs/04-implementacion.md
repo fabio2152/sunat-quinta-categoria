@@ -91,10 +91,20 @@ límite del método: funcionó porque el dominio era completamente especificable
 norma tributaria publicada, con casos de prueba y resultados esperados dados). La cascada rinde
 bien exactamente en ese escenario.
 
-Donde sí apareció fricción fue en lo *no* especificado por la norma: el script de pruebas.
-`node --test test/` (la forma escrita en la spec) funciona en Node 18–20 pero falla en Node 24
-sobre Windows, donde los argumentos se interpretan como patrones glob. Se cambió a
-`node --test "test/**/*.test.js"`, compatible con ambos. Es un detalle menor, pero ilustra el
-punto: **el diseño no puede anticipar el entorno de ejecución real**, y ese tipo de ajuste solo
-se descubre implementando. En cascada estricta, cualquier corrección de este tipo obliga a
-retocar el documento de diseño hacia atrás.
+Donde sí apareció fricción fue en todo lo que la norma **no** especifica: el entorno de
+ejecución. Dos ajustes reales, ninguno previsible desde el diseño:
+
+1. **La invocación del runner.** `node --test test/` (la forma escrita en la spec) falla en
+   Node 24 sobre Windows, donde el argumento se interpreta como patrón glob. El patrón explícito
+   `node --test "test/**/*.test.js"` arregló el local pero **rompió la CI**, porque Node 20 no
+   soporta globs en `--test`. La forma que funciona en todas las versiones y en todos los shells
+   es nombrar el archivo: `node --test test/calculadora.test.js`.
+2. **Jekyll en GitHub Pages.** El primer despliegue falló: Pages procesa los `.md` de `docs/`
+   con Jekyll, y el bloque `{{mes:number, monto:number}}` del contrato de `Entrada` en
+   `03-diseno.md` es sintaxis de plantilla Liquid inválida. Se resolvió con un archivo
+   **`.nojekyll`** en la raíz, que desactiva el pipeline de Jekyll y publica los archivos tal
+   cual — que es exactamente lo que un sitio estático de vanilla JS necesita.
+
+Ambos son detalles menores, pero ilustran el punto: **el diseño no puede anticipar el entorno de
+ejecución real**, y ese tipo de ajuste solo se descubre ejecutando. En cascada estricta, cada
+corrección de este tipo obliga a retocar hacia atrás el documento de diseño y el de pruebas.

@@ -11,7 +11,7 @@ mantenibilidad del sistema.
 - uses: actions/setup-node@v4
   with:
     node-version: '20'
-- run: node --test "test/**/*.test.js"
+- run: node --test test/calculadora.test.js
 ```
 
 Sin `npm install`: el proyecto tiene **cero dependencias**, así que la CI es el runner de Node y
@@ -23,9 +23,14 @@ nada más. Cualquier cambio que rompa uno de los 5 casos del docente falla el bu
 2. **Settings → Pages → Source: Deploy from a branch → Branch `main` / `(root)` → Save**.
 3. El sitio queda en `https://<usuario>.github.io/sunat-quinta-categoria/`.
 
-No hay build step: GitHub Pages sirve `index.html` y los módulos ES tal cual. La condición para
-que esto funcione es que **todas las rutas sean relativas**, porque el sitio vive en un
-subdirectorio y no en la raíz del dominio.
+No hay build step: GitHub Pages sirve `index.html` y los módulos ES tal cual. Dos condiciones
+para que esto funcione:
+
+- **Todas las rutas deben ser relativas** (`./src/…`, `./assets/…`), porque el sitio vive en el
+  subdirectorio `/sunat-quinta-categoria/` y no en la raíz del dominio.
+- **Un archivo `.nojekyll` en la raíz.** Sin él, Pages pasa el repositorio por Jekyll, que
+  intenta interpretar los `.md` de `docs/` como plantillas Liquid y falla con las llaves dobles
+  de los ejemplos de código. `.nojekyll` desactiva ese pipeline y publica los archivos literales.
 
 ## 6.3 Escenario 1 — Cambia la UIT o los tramos el próximo ejercicio
 
